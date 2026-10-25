@@ -1,0 +1,18 @@
+// SQLD 합격노트 서비스워커: 온라인이면 새 파일, 오프라인이면 저장해 둔 파일
+const V = 'sqld-pr-fdff5306f2';
+const FILES = ["./", "app.js", "data/bank.js", "data/concepts.js", "data/concepts_more.js", "data/flash.js", "data/plus.js", "fbconfig.js", "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png", "index.html", "lib/fb-app.js", "lib/fb-auth.js", "lib/fb-store.js", "lib/sql-wasm-bin.js", "lib/sql-wasm.js", "manifest.webmanifest"];
+self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });
+self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('sqld-pr-') && k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
+self.addEventListener('fetch', e => {
+  const r = e.request; if (r.method !== 'GET' || new URL(r.url).origin !== location.origin) return;
+  e.respondWith((async () => {
+    const c = await caches.open(V);
+    try {
+      const net = await Promise.race([fetch(r, { cache: 'no-cache' }), new Promise((_, no) => setTimeout(() => no(new Error('timeout')), 5000))]);
+      if (net && net.ok) c.put(r, net.clone());
+      return net;
+    } catch (err) {
+      return (await c.match(r, { ignoreSearch: true })) || (r.mode === 'navigate' ? await c.match('./') : Response.error());
+    }
+  })());
+});
