@@ -1,5 +1,5 @@
 // SQLD 합격노트 서비스워커: 온라인이면 새 파일, 오프라인이면 저장해 둔 파일
-const V = 'sqld-pr-3b29feebef';
+const V = 'sqld-pr-f2df83feb8';
 const FILES = ["./", "app.js", "data/bank.js", "data/concepts.js", "data/concepts_more.js", "data/flash.js", "data/plus.js", "fbconfig.js", "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png", "index.html", "lib/fb-app.js", "lib/fb-auth.js", "lib/fb-store.js", "lib/sql-wasm-bin.js", "lib/sql-wasm.js", "manifest.webmanifest"];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('sqld-pr-') && k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
